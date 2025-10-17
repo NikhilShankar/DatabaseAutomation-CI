@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NYC 311 - Aggregate Statistics</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; padding: 20px; background: #f5f5f5; }
+        .container { max-width: 1400px; margin: 0 auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        h1 { color: #333; margin-bottom: 20px; }
+        h2 { color: #555; margin: 30px 0 15px; border-bottom: 2px solid #007bff; padding-bottom: 10px; }
+        .nav { margin-bottom: 20px; }
+        .nav a { color: #007bff; text-decoration: none; margin-right: 20px; }
+        .nav a:hover { text-decoration: underline; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .stat-card { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 8px; text-align: center; }
+        .stat-card h3 { font-size: 36px; margin-bottom: 10px; }
+        .stat-card p { font-size: 14px; opacity: 0.9; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background: #007bff; color: white; font-weight: bold; }
+        tr:hover { background: #f8f9fa; }
+        .progress-bar { background: #e9ecef; height: 20px; border-radius: 10px; overflow: hidden; }
+        .progress-fill { background: linear-gradient(90deg, #00d2ff 0%, #3a7bd5 100%); height: 100%; transition: width 0.3s; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>NYC 311 Service Requests - Aggregate Statistics</h1>
+
+        <div class="nav">
+            <a href="/">Search</a>
+            <a href="/aggregate">Aggregate Stats</a>
+        </div>
+
+        <h2>Overall Statistics</h2>
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>{{ overall_stats.total }}</h3>
+                <p>Total Complaints</p>
+            </div>
+            <div class="stat-card">
+                <h3>{{ overall_stats.closed }}</h3>
+                <p>Closed Complaints</p>
+            </div>
+            <div class="stat-card">
+                <h3>{{ overall_stats.open }}</h3>
+                <p>Open Complaints</p>
+            </div>
+            <div class="stat-card">
+                <h3>{{ overall_stats.agencies }}</h3>
+                <p>Agencies</p>
+            </div>
+            <div class="stat-card">
+                <h3>{{ overall_stats.complaint_types }}</h3>
+                <p>Complaint Types</p>
+            </div>
+        </div>
+
+        <h2>Complaints by Borough</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Borough</th>
+                    <th>Total</th>
+                    <th>Closed</th>
+                    <th>Open</th>
+                    <th>Earliest</th>
+                    <th>Latest</th>
+                    <th>Closure Rate</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for stat in borough_stats %}
+                <tr>
+                    <td><strong>{{ stat.borough }}</strong></td>
+                    <td>{{ stat.total_complaints }}</td>
+                    <td>{{ stat.closed_complaints }}</td>
+                    <td>{{ stat.open_complaints }}</td>
+                    <td>{{ stat.earliest_complaint }}</td>
+                    <td>{{ stat.latest_complaint }}</td>
+                    <td>
+                        {% set rate = (stat.closed_complaints / stat.total_complaints * 100) | round(1) %}
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: {{ rate }}%"></div>
+                        </div>
+                        {{ rate }}%
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <h2>Top 10 Complaint Types</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Rank</th>
+                    <th>Complaint Type</th>
+                    <th>Count</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for complaint in top_complaints %}
+                <tr>
+                    <td>{{ loop.index }}</td>
+                    <td>{{ complaint.complaint_type }}</td>
+                    <td>{{ complaint.count }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

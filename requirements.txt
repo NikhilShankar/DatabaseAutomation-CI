@@ -1,0 +1,9 @@
+Flask
+pymysql
+SQLAlchemy
+pandas
+selenium
+webdriver-manager
+cryptography
+pytest
+numpy
