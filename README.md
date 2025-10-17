@@ -2,6 +2,21 @@
 
 A full-stack data pipeline project that automates the ingestion, storage, and visualization of NYC 311 service request data.
 
+## 📊 Dataset Information
+
+**Production Data**:
+- Source: NYC Open Data - 311 Service Requests
+- Time Period: January 2025
+- File: `data/data_311_Jan_2025.csv`
+- Records: ~337,000+ complaints
+- Size: ~100 MB
+
+**Test Data (CI/CD)**:
+- File: `tests/fixtures/311_sample.csv`
+- Records: 20 representative samples
+- Coverage: All 5 boroughs, multiple agencies, various complaint types
+- Purpose: Automated testing in GitHub Actions
+
 ## 🎯 Project Overview
 
 This project demonstrates:
