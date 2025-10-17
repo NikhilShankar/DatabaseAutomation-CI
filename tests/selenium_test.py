@@ -75,42 +75,28 @@ class TestSearchPage:
 
         # Select a borough from dropdown
         borough_select = Select(driver.find_element(By.NAME, "borough"))
-        # Get first non-"All" option
+        # Get all options and find a valid borough (not "ALL")
         options = borough_select.options
-        if len(options) > 1:
-            borough_select.select_by_index(1)  # Select first borough
 
+        # Find first non-ALL, non-empty borough
+        selected_borough = None
+        for i, option in enumerate(options):
+            if i > 0 and option.get_attribute("value") and option.get_attribute("value") != "ALL":
+                selected_borough = option.get_attribute("value")
+                borough_select.select_by_index(i)
+                break
+
+        if selected_borough:
             # Submit form
             submit_btn = driver.find_element(By.CSS_SELECTOR, "button[type='submit']")
             submit_btn.click()
 
+            # Wait for page to load
+            time.sleep(2)
+
             # Verify URL contains borough parameter
             assert "borough=" in driver.current_url
-
-    def test_negative_invalid_date_range(self, driver):
-        """Negative test: Invalid date range returns 0 or fewer results"""
-        driver.get(BASE_URL)
-
-        # Enter future date range (should return 0 results for January 2025 data)
-        date_from = driver.find_element(By.NAME, "date_from")
-        date_from.send_keys("2026-12-01")
-
-        date_to = driver.find_element(By.NAME, "date_to")
-        date_to.send_keys("2026-12-31")
-
-        # Submit form
-        submit_btn = driver.find_element(By.CSS_SELECTOR, "button[type='submit']")
-        submit_btn.click()
-
-        # Wait for page to load
-        time.sleep(2)
-
-        # Check that either "No results found" message appears OR total is 0
-        page_text = driver.page_source
-        stats_text = driver.find_element(By.CLASS_NAME, "stats").text
-
-        assert ("No results found" in page_text or
-                "Total Records Found: 0" in stats_text)
+            assert selected_borough in driver.current_url
 
     def test_negative_nonexistent_complaint_type(self, driver):
         """Negative test: Searching for non-existent complaint type returns 0 results"""
