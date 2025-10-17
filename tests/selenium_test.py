@@ -45,32 +45,29 @@ class TestSearchPage:
         """Positive test: Search form returns results"""
         driver.get(BASE_URL)
 
-        # Fill in search form - use broad date range to catch all fixture data
+        # Fill in search form
         date_from = driver.find_element(By.NAME, "date_from")
         date_from.send_keys("2025-01-01")
 
         date_to = driver.find_element(By.NAME, "date_to")
-        date_to.send_keys("2025-12-31")
+        date_to.send_keys("2025-01-31")
 
         # Submit form
         submit_btn = driver.find_element(By.CSS_SELECTOR, "button[type='submit']")
         submit_btn.click()
 
-        # Wait for page to load and check for stats
+        # Wait for results to load
         wait = WebDriverWait(driver, 10)
-        wait.until(EC.presence_of_element_located((By.CLASS_NAME, "stats")))
+        wait.until(EC.presence_of_element_located((By.TAG_NAME, "table")))
 
         # Verify results are displayed
         stats = driver.find_element(By.CLASS_NAME, "stats").text
         assert "Total Records Found:" in stats
 
-        # Check if we have results by looking for table OR "No results" message
-        page_source = driver.page_source
-        has_table = len(driver.find_elements(By.TAG_NAME, "table")) > 0
-        has_no_results = "No results found" in page_source
-
-        # Either we have a table with data OR we have a "no results" message
-        assert has_table or has_no_results
+        # Check that table exists and has rows
+        table = driver.find_element(By.TAG_NAME, "table")
+        rows = table.find_elements(By.TAG_NAME, "tr")
+        assert len(rows) > 1  # Header + at least 1 data row
 
     def test_borough_filter(self, driver):
         """Positive test: Filter by borough"""
@@ -125,31 +122,21 @@ class TestSearchPage:
         """Test that pagination controls appear when there are results"""
         driver.get(BASE_URL)
 
-        # Search with broad date filter to get all results
+        # Search with date filter to get results
         date_from = driver.find_element(By.NAME, "date_from")
         date_from.send_keys("2025-01-01")
-
-        date_to = driver.find_element(By.NAME, "date_to")
-        date_to.send_keys("2025-12-31")
 
         submit_btn = driver.find_element(By.CSS_SELECTOR, "button[type='submit']")
         submit_btn.click()
 
-        # Wait for page to load
+        # Wait for results
         wait = WebDriverWait(driver, 10)
-        wait.until(EC.presence_of_element_located((By.CLASS_NAME, "stats")))
+        wait.until(EC.presence_of_element_located((By.CLASS_NAME, "pagination")))
 
-        # Wait a bit for pagination to render
-        time.sleep(2)
-
-        # Verify pagination element exists (should exist even with few results)
-        pagination_elements = driver.find_elements(By.CLASS_NAME, "pagination")
-        assert len(pagination_elements) > 0, "Pagination element should exist"
-
-        # Get the pagination text fresh to avoid stale element
+        # Verify pagination element exists
         pagination = driver.find_element(By.CLASS_NAME, "pagination")
-        pagination_text = pagination.text
-        assert "Page" in pagination_text or len(pagination_text) > 0
+        assert pagination is not None
+        assert "Page" in pagination.text
 
 class TestAggregatePage:
     """Tests for the aggregate statistics page"""
