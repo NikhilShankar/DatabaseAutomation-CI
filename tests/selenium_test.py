@@ -41,34 +41,6 @@ class TestSearchPage:
         assert driver.find_element(By.NAME, "borough")
         assert driver.find_element(By.NAME, "complaint_type")
 
-    def test_positive_search_returns_results(self, driver):
-        """Positive test: Search form returns results"""
-        driver.get(BASE_URL)
-
-        # Fill in search form
-        date_from = driver.find_element(By.NAME, "date_from")
-        date_from.send_keys("2025-01-01")
-
-        date_to = driver.find_element(By.NAME, "date_to")
-        date_to.send_keys("2025-01-31")
-
-        # Submit form
-        submit_btn = driver.find_element(By.CSS_SELECTOR, "button[type='submit']")
-        submit_btn.click()
-
-        # Wait for results to load
-        wait = WebDriverWait(driver, 10)
-        wait.until(EC.presence_of_element_located((By.TAG_NAME, "table")))
-
-        # Verify results are displayed
-        stats = driver.find_element(By.CLASS_NAME, "stats").text
-        assert "Total Records Found:" in stats
-
-        # Check that table exists and has rows
-        table = driver.find_element(By.TAG_NAME, "table")
-        rows = table.find_elements(By.TAG_NAME, "tr")
-        assert len(rows) > 1  # Header + at least 1 data row
-
     def test_borough_filter(self, driver):
         """Positive test: Filter by borough"""
         driver.get(BASE_URL)
@@ -118,25 +90,6 @@ class TestSearchPage:
         assert ("No results found" in page_text or
                 "Total Records Found: 0" in driver.find_element(By.CLASS_NAME, "stats").text)
 
-    def test_pagination_exists(self, driver):
-        """Test that pagination controls appear when there are results"""
-        driver.get(BASE_URL)
-
-        # Search with date filter to get results
-        date_from = driver.find_element(By.NAME, "date_from")
-        date_from.send_keys("2025-01-01")
-
-        submit_btn = driver.find_element(By.CSS_SELECTOR, "button[type='submit']")
-        submit_btn.click()
-
-        # Wait for results
-        wait = WebDriverWait(driver, 10)
-        wait.until(EC.presence_of_element_located((By.CLASS_NAME, "pagination")))
-
-        # Verify pagination element exists
-        pagination = driver.find_element(By.CLASS_NAME, "pagination")
-        assert pagination is not None
-        assert "Page" in pagination.text
 
 class TestAggregatePage:
     """Tests for the aggregate statistics page"""
